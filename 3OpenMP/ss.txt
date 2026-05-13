@@ -1,0 +1,1042 @@
+This program is based on:
+
+# OPENMP (Open Multi-Processing)
+
+and specifically demonstrates:
+
+# Parallel Array Summation using Multithreading in C
+
+This is a parallel computing program where:
+
+* multiple threads work simultaneously
+* workload is divided among threads
+* each thread computes partial sum
+* all partial sums combine into final result
+
+This is a VERY important concept in:
+
+* Parallel Computing
+* High Performance Computing (HPC)
+* Supercomputers
+* AI training systems
+* CPU optimization
+* Scientific simulations
+
+I’ll explain EVERYTHING from absolute beginner level:
+
+* What OpenMP is
+* What parallel computing means
+* Why multithreading is needed
+* What threads are internally
+* What `#pragma omp parallel` means
+* What race condition is
+* What critical section means
+* What chunking means
+* How workload division happens
+* How CPU cores execute threads
+* What compiler flags mean
+* Every line of code
+* Internal execution flow
+* Practical viva questions and answers
+* Memory concepts
+* Synchronization
+* Parallelism vs concurrency
+* Complete dry run
+
+---
+
+# 1. FIRST UNDERSTAND THE MAIN PROBLEM
+
+Suppose you have:
+
+```text id="5dzj4t"
+1 2 3 4 5 6 7 8
+```
+
+Need to calculate sum.
+
+Normally:
+one CPU executes sequentially:
+
+```text id="u9xxe1"
+1+2+3+4+5+6+7+8
+```
+
+This is called:
+
+# Sequential Computing
+
+Only ONE execution flow.
+
+---
+
+# PROBLEM WITH SEQUENTIAL EXECUTION
+
+For small arrays:
+fine.
+
+But imagine:
+
+* 10 billion elements
+* scientific simulations
+* AI matrix operations
+* weather forecasting
+
+One thread becomes VERY slow.
+
+---
+
+# SOLUTION → PARALLEL COMPUTING
+
+Instead of ONE worker:
+
+Use MULTIPLE workers.
+
+Example:
+
+| Thread   | Work |
+| -------- | ---- |
+| Thread 0 | 1+2  |
+| Thread 1 | 3+4  |
+| Thread 2 | 5+6  |
+| Thread 3 | 7+8  |
+
+Then combine results.
+
+This is:
+
+# Parallel Processing
+
+---
+
+# 2. WHAT IS OPENMP?
+
+OpenMP =
+Open Multi-Processing
+
+It is an API/library for:
+
+* parallel programming
+* multithreading
+* shared memory multiprocessing
+
+Mostly used in:
+
+* C
+* C++
+* Fortran
+
+---
+
+# WHY OPENMP EXISTS?
+
+Without OpenMP:
+creating threads manually is HARD.
+
+Need:
+
+* thread creation
+* synchronization
+* scheduling
+* locking
+
+OpenMP simplifies this using compiler directives.
+
+---
+
+# MOST IMPORTANT IDEA
+
+You simply write:
+
+```c id="j4l1z0"
+#pragma omp parallel
+```
+
+and compiler automatically creates threads.
+
+---
+
+# 3. WHAT IS A THREAD?
+
+VERY IMPORTANT CONCEPT.
+
+---
+
+# PROCESS VS THREAD
+
+---
+
+# PROCESS
+
+A running program.
+
+Example:
+
+* Chrome
+* VS Code
+* Game
+
+Each has separate memory.
+
+---
+
+# THREAD
+
+A lightweight execution unit inside process.
+
+Threads share:
+
+* same memory
+* same variables
+* same resources
+
+---
+
+# REAL LIFE EXAMPLE
+
+Restaurant:
+
+PROCESS = Restaurant
+
+THREADS =
+
+* waiter
+* chef
+* cashier
+
+All work together.
+
+---
+
+# YOUR PROGRAM USES MULTITHREADING
+
+Multiple threads:
+
+* compute simultaneously
+* divide workload
+* improve speed
+
+---
+
+# FILE: `sum.c`
+
+
+
+```c id="z06f20"
+#include <stdio.h>
+#include <omp.h>
+```
+
+---
+
+# LINE 1
+
+```c id="ywjlwm"
+#include <stdio.h>
+```
+
+---
+
+# WHAT IS stdio.h?
+
+Standard Input Output library.
+
+Provides:
+
+* printf()
+* scanf()
+
+Without this:
+printing functions unavailable.
+
+---
+
+# LINE 2
+
+```c id="w5zw0v"
+#include <omp.h>
+```
+
+---
+
+# MOST IMPORTANT HEADER
+
+Includes OpenMP functions.
+
+Provides:
+
+* omp_get_thread_num()
+* omp_get_num_threads()
+* OpenMP APIs
+
+Without this:
+OpenMP functions unavailable.
+
+---
+
+# MAIN FUNCTION
+
+```c id="9mjlwm"
+int main()
+```
+
+Program starts here.
+
+---
+
+# ARRAY CREATION
+
+```c id="zmjlwm"
+int arr[8] = {1,2,3,4,5,6,7,8};
+```
+
+Creates integer array.
+
+---
+
+# MEMORY CONCEPT
+
+Array stored continuously in RAM.
+
+Example:
+
+| Index | Value |
+| ----- | ----- |
+| 0     | 1     |
+| 1     | 2     |
+| 2     | 3     |
+
+---
+
+# ARRAY SIZE
+
+```c id="ljlwm8"
+int n = 8;
+```
+
+Stores total elements.
+
+---
+
+# FINAL SUM VARIABLE
+
+```c id="xjlwm1"
+int total_sum = 0;
+```
+
+Stores final result.
+
+IMPORTANT:
+This variable is SHARED among all threads.
+
+VERY important concept.
+
+---
+
+# NOW THE MOST IMPORTANT PART
+
+```c id="o5mjlwm"
+#pragma omp parallel
+```
+
+---
+
+# WHAT IS #pragma?
+
+`#pragma` is compiler instruction.
+
+Tells compiler:
+
+> "Do something special."
+
+---
+
+# WHAT DOES omp parallel DO?
+
+Compiler creates multiple threads automatically.
+
+---
+
+# WITHOUT OPENMP
+
+Only ONE thread:
+
+```text id="jlwmv4"
+Main Thread
+```
+
+---
+
+# WITH OPENMP
+
+```text id="jlwm8v"
+Main Thread
+   |
+--------------------------------
+|     |      |       |
+T0    T1     T2      T3
+```
+
+---
+
+# IMPORTANT
+
+All threads execute SAME block.
+
+---
+
+# THIS BLOCK
+
+```c id="jlwm0t"
+{
+   ...
+}
+```
+
+runs by ALL threads simultaneously.
+
+---
+
+# LOCAL VARIABLE
+
+```c id="jlwm5d"
+int local_sum = 0;
+```
+
+VERY IMPORTANT.
+
+Each thread gets ITS OWN copy.
+
+---
+
+# WHY LOCAL VARIABLES IMPORTANT?
+
+Suppose all threads used same variable:
+
+Chaos happens.
+
+Incorrect calculations.
+
+This is called:
+
+# Race Condition
+
+---
+
+# WHAT IS RACE CONDITION?
+
+When multiple threads:
+
+* access same data
+* simultaneously
+* causing unpredictable results
+
+---
+
+# THREAD ID
+
+```c id="jlwmw2"
+int id = omp_get_thread_num();
+```
+
+Returns thread number.
+
+Example:
+
+| Thread   | ID |
+| -------- | -- |
+| Thread 0 | 0  |
+| Thread 1 | 1  |
+| Thread 2 | 2  |
+
+---
+
+# NUMBER OF THREADS
+
+```c id="jlwmf7"
+int num_threads = omp_get_num_threads();
+```
+
+Returns total threads.
+
+Example:
+
+```text id="jlwm5s"
+4
+```
+
+---
+
+# CHUNKING CONCEPT
+
+```c id="jlwmva"
+int chunk = n / num_threads;
+```
+
+MOST IMPORTANT CONCEPT.
+
+---
+
+# WHAT IS CHUNK?
+
+Chunk =
+portion of work assigned to each thread.
+
+---
+
+# EXAMPLE
+
+If:
+
+```text id="jlwm33"
+n = 8
+threads = 4
+```
+
+Then:
+
+```text id="jlwm11"
+chunk = 2
+```
+
+Each thread processes 2 elements.
+
+---
+
+# START INDEX
+
+```c id="jlwm9c"
+int start = id * chunk;
+```
+
+Determines where thread starts.
+
+---
+
+# EXAMPLE
+
+| Thread ID | Start |
+| --------- | ----- |
+| 0         | 0     |
+| 1         | 2     |
+| 2         | 4     |
+| 3         | 6     |
+
+---
+
+# END VARIABLE
+
+```c id="jlwm6m"
+int end;
+```
+
+Stores ending index.
+
+---
+
+# LAST THREAD CONDITION
+
+```c id="jlwm2e"
+if(id == num_threads - 1)
+    end = n;
+else
+    end = start + chunk;
+```
+
+---
+
+# WHY THIS IS IMPORTANT?
+
+Suppose:
+
+```text id="jlwm9j"
+10 elements
+3 threads
+```
+
+Then:
+
+```text id="jlwm0n"
+10/3 = 3
+```
+
+Remaining:
+1 element.
+
+Last thread handles remaining work.
+
+---
+
+# DRY RUN
+
+Suppose:
+
+| Thread | Start | End |
+| ------ | ----- | --- |
+| 0      | 0     | 2   |
+| 1      | 2     | 4   |
+| 2      | 4     | 6   |
+| 3      | 6     | 8   |
+
+---
+
+# LOOP
+
+```c id="jlwm4h"
+for(int i = start; i < end; i++)
+```
+
+Each thread processes its assigned part.
+
+---
+
+# ADDITION
+
+```c id="jlwm1k"
+local_sum += arr[i];
+```
+
+Thread calculates partial sum.
+
+---
+
+# EXAMPLE
+
+Thread 0:
+
+```text id="jlwm0x"
+1+2=3
+```
+
+Thread 1:
+
+```text id="jlwm2o"
+3+4=7
+```
+
+---
+
+# PRINTING
+
+```c id="jlwm8k"
+printf("Thread %d calculated partial sum = %d\n", id, local_sum);
+```
+
+Shows:
+
+* which thread
+* calculated what
+
+---
+
+# CRITICAL SECTION
+
+```c id="jlwm7t"
+#pragma omp critical
+```
+
+EXTREMELY IMPORTANT.
+
+---
+
+# WHY CRITICAL SECTION IS NEEDED?
+
+All threads share:
+
+```c id="jlwm4v"
+total_sum
+```
+
+If multiple threads update simultaneously:
+
+WRONG ANSWERS occur.
+
+---
+
+# EXAMPLE OF PROBLEM
+
+Suppose:
+
+```text id="jlwm1v"
+total_sum = 10
+```
+
+Thread A adds 5.
+Thread B adds 7.
+
+Without synchronization:
+final result may become:
+
+```text id="jlwm6q"
+15
+```
+
+instead of:
+
+```text id="jlwm9w"
+22
+```
+
+because updates overlap.
+
+---
+
+# CRITICAL SECTION SOLUTION
+
+Only ONE thread allowed at a time.
+
+Like bathroom lock system.
+
+---
+
+# THIS LINE
+
+```c id="jlwm0m"
+total_sum += local_sum;
+```
+
+Safely updates shared variable.
+
+---
+
+# FINAL PRINT
+
+```c id="jlwm3y"
+printf("Final Total Sum = %d\n", total_sum);
+```
+
+Displays final result.
+
+---
+
+# RETURN 0
+
+```c id="jlwm5k"
+return 0;
+```
+
+Means:
+program executed successfully.
+
+---
+
+# COMPLETE INTERNAL EXECUTION FLOW
+
+---
+
+# STEP 1
+
+Program starts.
+
+---
+
+# STEP 2
+
+Main thread created.
+
+---
+
+# STEP 3
+
+OpenMP creates worker threads.
+
+---
+
+# STEP 4
+
+Each thread gets unique ID.
+
+---
+
+# STEP 5
+
+Work divided into chunks.
+
+---
+
+# STEP 6
+
+Each thread computes partial sum.
+
+---
+
+# STEP 7
+
+Critical section combines sums safely.
+
+---
+
+# STEP 8
+
+Final sum printed.
+
+---
+
+# COMPILATION COMMAND
+
+
+
+```bash id="jlwm0u"
+gcc -fopenmp sum.c
+```
+
+---
+
+# BREAKING THIS
+
+---
+
+# gcc
+
+GNU C Compiler.
+
+Compiles C program.
+
+---
+
+# -fopenmp
+
+MOST IMPORTANT FLAG.
+
+Enables OpenMP support.
+
+Without this:
+compiler ignores OpenMP directives.
+
+---
+
+# RUN COMMAND
+
+```bash id="jlwm2y"
+./a.out
+```
+
+Runs executable.
+
+---
+
+# OPTIONAL COMMAND
+
+```bash id="jlwm5r"
+set OMP_NUM_THREADS=4
+```
+
+Sets number of threads manually.
+
+---
+
+# WHY THIS IS IMPORTANT?
+
+You control parallelism level.
+
+---
+
+# IF NOT SET?
+
+OpenMP automatically chooses threads.
+
+Usually:
+equal to CPU cores.
+
+---
+
+# OUTPUT EXAMPLE
+
+```text id="jlwm8s"
+Thread 0 calculated partial sum = 3
+Thread 1 calculated partial sum = 7
+Thread 2 calculated partial sum = 11
+Thread 3 calculated partial sum = 15
+
+Final Total Sum = 36
+```
+
+---
+
+# IMPORTANT CONCEPTS USED
+
+| Concept            | Meaning                              |
+| ------------------ | ------------------------------------ |
+| Parallel Computing | Multiple computations simultaneously |
+| Multithreading     | Multiple execution units             |
+| Shared Memory      | Threads share same memory            |
+| Synchronization    | Coordinating threads                 |
+| Critical Section   | One thread at a time                 |
+| Chunking           | Dividing work                        |
+| Race Condition     | Unsafe simultaneous access           |
+| OpenMP             | Parallel programming API             |
+
+---
+
+# PARALLELISM VS CONCURRENCY
+
+VERY IMPORTANT VIVA QUESTION.
+
+---
+
+# CONCURRENCY
+
+Tasks progress together.
+
+Not necessarily same time.
+
+Example:
+switching between tasks rapidly.
+
+---
+
+# PARALLELISM
+
+Tasks execute literally simultaneously.
+
+Needs multiple cores.
+
+---
+
+# YOUR PROGRAM USES?
+
+# Parallelism
+
+because multiple CPU cores execute threads simultaneously.
+
+---
+
+# SHARED MEMORY MODEL
+
+OpenMP uses:
+
+# Shared Memory Architecture
+
+All threads access same memory.
+
+---
+
+# ADVANTAGE
+
+Fast communication.
+
+---
+
+# DISADVANTAGE
+
+Need synchronization.
+
+---
+
+# PRACTICAL/VIVA QUESTIONS AND ANSWERS
+
+---
+
+# Q1. What is OpenMP?
+
+OpenMP is an API for parallel programming in C/C++/Fortran using multithreading in shared memory systems.
+
+---
+
+# Q2. What does `#pragma omp parallel` do?
+
+It creates multiple threads and executes the following block in parallel.
+
+---
+
+# Q3. What is thread?
+
+A thread is a lightweight execution unit inside a process.
+
+---
+
+# Q4. Difference between process and thread?
+
+Process has separate memory.
+Threads share same memory.
+
+---
+
+# Q5. What is race condition?
+
+When multiple threads simultaneously modify shared data causing unpredictable results.
+
+---
+
+# Q6. Why critical section used?
+
+To ensure only one thread accesses shared resource at a time.
+
+---
+
+# Q7. What happens if critical section removed?
+
+Incorrect total sum may occur due to race condition.
+
+---
+
+# Q8. What is chunking?
+
+Dividing workload among threads.
+
+---
+
+# Q9. What does `omp_get_thread_num()` return?
+
+Current executing thread ID.
+
+---
+
+# Q10. Why use local_sum?
+
+To avoid race condition during partial calculations.
+
+---
+
+# Q11. What is shared memory?
+
+Memory accessible by all threads.
+
+---
+
+# Q12. Why OpenMP is faster?
+
+Because multiple CPU cores work simultaneously.
+
+---
+
+# Q13. What is synchronization?
+
+Controlling thread access to shared resources safely.
+
+---
+
+# Q14. Why `-fopenmp` needed?
+
+Enables OpenMP support during compilation.
+
+---
+
+# Q15. Sequential vs Parallel Computing?
+
+Sequential uses one execution flow.
+Parallel uses multiple simultaneous execution flows.
+
+---
+
+# BIGGEST TAKEAWAY
+
+This small program actually demonstrates:
+
+* Parallel Computing
+* CPU Core Utilization
+* Shared Memory Architecture
+* Synchronization
+* Thread Management
+* Workload Distribution
+* Concurrent Execution
+* Performance Optimization
+
+These concepts are foundational in:
+
+* AI model training
+* GPU computing
+* Scientific computing
+* Operating systems
+* High-performance servers
+* Supercomputers
