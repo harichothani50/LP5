@@ -1,0 +1,1210 @@
+This project is based on one of the MOST IMPORTANT concepts in modern computing:
+
+# CLIENT-SERVER COMMUNICATION USING HTTP
+
+and specifically:
+
+# BUILDING A SIMPLE HTTP WEB SERVER IN JAVA
+
+This project demonstrates:
+
+* HTTP Protocol
+* Web Server Architecture
+* Client-Server Model
+* URL Handling
+* Request-Response Cycle
+* Socket-based HTTP Communication
+* REST-like API Concept
+* Query Parameters
+* Network Programming
+* Web Communication
+
+This is foundational knowledge behind:
+
+* Websites
+* REST APIs
+* Web Applications
+* Cloud Services
+* Backend Development
+* Microservices
+* Mobile Apps
+* AI APIs like OpenAI APIs
+
+I’ll explain EVERYTHING deeply:
+
+* What HTTP is
+* What web server means
+* What client-server architecture is
+* What URL means
+* What GET request means
+* What query parameters are
+* What HTTP response codes are
+* What HttpURLConnection does
+* What HttpServer does internally
+* How browser communication works
+* Every line of code
+* Internal execution flow
+* Networking concepts
+* Real-world usage
+* Viva questions and answers
+* Advanced concepts examiner may ask
+
+---
+
+# 1. FIRST UNDERSTAND THE MAIN CONCEPT
+
+Suppose you open browser:
+
+```text id="x9m3kw"
+https://google.com
+```
+
+What actually happens?
+
+---
+
+# STEP 1
+
+Browser becomes:
+
+# CLIENT
+
+---
+
+# STEP 2
+
+Google machine becomes:
+
+# SERVER
+
+---
+
+# STEP 3
+
+Client sends:
+
+# HTTP REQUEST
+
+---
+
+# STEP 4
+
+Server processes request.
+
+---
+
+# STEP 5
+
+Server sends:
+
+# HTTP RESPONSE
+
+---
+
+# THIS IS CALLED
+
+# CLIENT-SERVER ARCHITECTURE
+
+MOST IMPORTANT INTERNET CONCEPT.
+
+---
+
+# 2. WHAT IS CLIENT-SERVER ARCHITECTURE?
+
+Two components:
+
+| Component | Role             |
+| --------- | ---------------- |
+| Client    | Requests service |
+| Server    | Provides service |
+
+---
+
+# REAL LIFE EXAMPLE
+
+Restaurant:
+
+| Real Life      | Computing     |
+| -------------- | ------------- |
+| Customer       | Client        |
+| Waiter request | HTTP Request  |
+| Kitchen        | Server        |
+| Food returned  | HTTP Response |
+
+---
+
+# YOUR PROJECT
+
+Client asks:
+
+```text id="u4t7qx"
+Add 10 + 5
+```
+
+Server calculates and responds:
+
+```text id="m1v9cy"
+Sum = 15
+```
+
+---
+
+# 3. WHAT IS HTTP?
+
+HTTP =
+HyperText Transfer Protocol
+
+MOST IMPORTANT WEB CONCEPT.
+
+---
+
+# WHAT DOES HTTP DO?
+
+Defines rules for:
+
+* communication between client and server
+
+---
+
+# HTTP DEFINES
+
+* request format
+* response format
+* headers
+* status codes
+* methods
+
+---
+
+# WHAT IS PROTOCOL?
+
+Protocol =
+set of communication rules.
+
+---
+
+# REAL LIFE EXAMPLE
+
+Human language is protocol.
+
+If:
+
+* one speaks English
+* other understands English
+
+communication possible.
+
+---
+
+# HTTP IS INTERNET LANGUAGE
+
+Used by:
+
+* browsers
+* APIs
+* web servers
+* cloud systems
+
+---
+
+# 4. WHAT IS URL?
+
+Example:
+
+```text id="z6r2vm"
+http://localhost:8000/add?a=10&b=5
+```
+
+VERY IMPORTANT.
+
+---
+
+# BREAKING URL COMPLETELY
+
+| Part      | Meaning          |
+| --------- | ---------------- |
+| http://   | Protocol         |
+| localhost | Server address   |
+| 8000      | Port             |
+| /add      | Endpoint/path    |
+| ?a=10&b=5 | Query parameters |
+
+---
+
+# WHAT IS ENDPOINT?
+
+Specific server route/function.
+
+Example:
+
+| Endpoint | Purpose   |
+| -------- | --------- |
+| /login   | Login     |
+| /add     | Addition  |
+| /users   | User data |
+
+---
+
+# QUERY PARAMETERS
+
+```text id="y8m5kn"
+?a=10&b=5
+```
+
+Used to send data.
+
+---
+
+# FILES IN PROJECT
+
+| File                 | Purpose         |
+| -------------------- | --------------- |
+| `Server.java`        | HTTP server     |
+| `Client.java`        | HTTP client     |
+| `How to execute.txt` | Execution steps |
+
+---
+
+# FILE 1 — `Server.java`
+
+
+
+```java id="t2v6qx"
+import com.sun.net.httpserver.HttpServer;
+import com.sun.net.httpserver.HttpHandler;
+import com.sun.net.httpserver.HttpExchange;
+```
+
+---
+
+# THESE IMPORTS ARE VERY IMPORTANT
+
+---
+
+# `HttpServer`
+
+Creates HTTP server.
+
+Handles:
+
+* requests
+* routing
+* responses
+
+---
+
+# `HttpHandler`
+
+Interface for handling requests.
+
+---
+
+# `HttpExchange`
+
+Represents complete HTTP transaction.
+
+Contains:
+
+* request
+* response
+* headers
+* URI
+
+---
+
+# OTHER IMPORTS
+
+```java id="q5m1wr"
+import java.io.*;
+import java.net.InetSocketAddress;
+```
+
+---
+
+# `java.io.*`
+
+Needed for:
+
+* OutputStream
+
+---
+
+# `InetSocketAddress`
+
+Represents:
+IP address + port combination.
+
+---
+
+# MAIN METHOD
+
+```java id="x1v7tp"
+public static void main(String[] args)
+```
+
+Program starts here.
+
+---
+
+# CREATE HTTP SERVER
+
+```java id="m4q9zc"
+HttpServer server = HttpServer.create(new InetSocketAddress(8000), 0);
+```
+
+MOST IMPORTANT LINE.
+
+---
+
+# BREAKING THIS COMPLETELY
+
+---
+
+# `HttpServer.create()`
+
+Creates web server.
+
+---
+
+# `new InetSocketAddress(8000)`
+
+Server listens on:
+
+```text id="d7m2kx"
+Port 8000
+```
+
+---
+
+# WHAT IS PORT?
+
+VERY IMPORTANT NETWORKING CONCEPT.
+
+---
+
+# COMPUTER HAS:
+
+| Component  | Purpose                |
+| ---------- | ---------------------- |
+| IP Address | Identifies machine     |
+| Port       | Identifies application |
+
+---
+
+# REAL LIFE EXAMPLE
+
+| Networking | Real Life        |
+| ---------- | ---------------- |
+| IP Address | Building Address |
+| Port       | Apartment Number |
+
+---
+
+# WHY PORT 8000?
+
+Custom HTTP development port.
+
+---
+
+# SECOND PARAMETER `0`
+
+```java id="r9v3mx"
+0
+```
+
+Means:
+default connection backlog.
+
+---
+
+# WHAT IS BACKLOG?
+
+Queue of waiting client connections.
+
+---
+
+# CREATE CONTEXT
+
+```java id="u3m6qw"
+server.createContext("/add", new MyHandler());
+```
+
+VERY IMPORTANT.
+
+---
+
+# WHAT IS CONTEXT?
+
+Maps endpoint to handler.
+
+---
+
+# MEANING
+
+Whenever request comes to:
+
+```text id="n6x2tp"
+/add
+```
+
+execute:
+
+```java id="j8q4vm"
+MyHandler
+```
+
+---
+
+# WHAT IS HANDLER?
+
+Code that processes request.
+
+---
+
+# EXECUTOR
+
+```java id="w2m9kr"
+server.setExecutor(null);
+```
+
+Uses default thread pool.
+
+---
+
+# THREAD POOL CONCEPT
+
+Server can handle:
+multiple clients simultaneously.
+
+Uses multithreading internally.
+
+---
+
+# SERVER START MESSAGE
+
+```java id="k7v1zx"
+System.out.println(...)
+```
+
+Displays server running.
+
+---
+
+# START SERVER
+
+```java id="f5m8qc"
+server.start();
+```
+
+Begins listening for HTTP requests.
+
+---
+
+# HANDLER CLASS
+
+```java id="t0q4mx"
+static class MyHandler implements HttpHandler
+```
+
+VERY IMPORTANT.
+
+---
+
+# WHY IMPLEMENT HttpHandler?
+
+Because server requires:
+request processing logic.
+
+---
+
+# HANDLE METHOD
+
+```java id="c3v7wr"
+public void handle(HttpExchange t)
+```
+
+MOST IMPORTANT SERVER METHOD.
+
+Runs automatically whenever request arrives.
+
+---
+
+# WHAT IS HttpExchange?
+
+Represents:
+complete HTTP communication.
+
+Contains:
+
+* request data
+* response stream
+* headers
+* URI
+
+---
+
+# GET QUERY
+
+```java id="m1q9tz"
+String query = t.getRequestURI().getQuery();
+```
+
+VERY IMPORTANT.
+
+---
+
+# WHAT DOES THIS RETURN?
+
+For URL:
+
+```text id="z8m5vk"
+http://localhost:8000/add?a=10&b=5
+```
+
+returns:
+
+```text id="q2v6mx"
+a=10&b=5
+```
+
+---
+
+# SPLIT PARAMETERS
+
+```java id="x7t1kw"
+String[] params = query.split("&");
+```
+
+Splits query using:
+
+```text id="r4m9qc"
+&
+```
+
+---
+
+# RESULT
+
+| Index | Value |
+| ----- | ----- |
+| 0     | a=10  |
+| 1     | b=5   |
+
+---
+
+# GET VALUE OF a
+
+```java id="k5v3mx"
+params[0].split("=")[1]
+```
+
+---
+
+# BREAKING THIS
+
+---
+
+# FIRST SPLIT
+
+```text id="f8q2vz"
+a=10
+```
+
+split by:
+
+```text id="m6x1tp"
+=
+```
+
+gives:
+
+```text id="n9v5wr"
+["a","10"]
+```
+
+---
+
+# `[1]`
+
+Extracts:
+
+```text id="y3m7qc"
+10
+```
+
+---
+
+# CONVERT TO INTEGER
+
+```java id="w1q8mx"
+Integer.parseInt(...)
+```
+
+String → integer conversion.
+
+---
+
+# SAME FOR b
+
+```java id="j4v2kr"
+int b = ...
+```
+
+---
+
+# ADDITION
+
+```java id="h7m5qx"
+int result = a + b;
+```
+
+Business logic.
+
+---
+
+# RESPONSE STRING
+
+```java id="t9v1mw"
+String response = "Sum = " + result;
+```
+
+Creates server response.
+
+---
+
+# SEND RESPONSE HEADERS
+
+```java id="p2m6qx"
+t.sendResponseHeaders(200, response.length());
+```
+
+VERY IMPORTANT HTTP CONCEPT.
+
+---
+
+# WHAT IS 200?
+
+HTTP STATUS CODE.
+
+---
+
+# COMMON STATUS CODES
+
+| Code | Meaning      |
+| ---- | ------------ |
+| 200  | Success      |
+| 404  | Not Found    |
+| 500  | Server Error |
+| 403  | Forbidden    |
+
+---
+
+# WHAT IS RESPONSE LENGTH?
+
+Tells client:
+how much data incoming.
+
+---
+
+# RESPONSE BODY
+
+```java id="z5v9kr"
+OutputStream os = t.getResponseBody();
+```
+
+Used to send actual response data.
+
+---
+
+# SEND DATA
+
+```java id="c8m2qx"
+os.write(response.getBytes());
+```
+
+Converts string into bytes.
+
+---
+
+# WHY BYTES?
+
+Network communication uses bytes.
+
+---
+
+# CLOSE STREAM
+
+```java id="w4q7mx"
+os.close();
+```
+
+Releases resources.
+
+---
+
+# FILE 2 — `Client.java`
+
+
+
+```java id="r1v5kq"
+import java.io.*;
+import java.net.*;
+```
+
+Imports networking and stream classes.
+
+---
+
+# URL OBJECT
+
+```java id="m7q2wx"
+URL url = new URL("http://localhost:8000/add?a=10&b=5");
+```
+
+VERY IMPORTANT.
+
+---
+
+# WHAT IS URL CLASS?
+
+Represents web address.
+
+---
+
+# WHAT IS localhost?
+
+Means:
+current machine.
+
+Equivalent IP:
+
+```text id="t3m8vx"
+127.0.0.1
+```
+
+---
+
+# OPEN CONNECTION
+
+```java id="k6v1mq"
+HttpURLConnection con = (HttpURLConnection) url.openConnection();
+```
+
+MOST IMPORTANT CLIENT LINE.
+
+---
+
+# WHAT DOES THIS DO?
+
+Creates HTTP connection to server.
+
+---
+
+# CONNECTION FLOW
+
+```text id="p9q4xt"
+Client → HTTP Connection → Server
+```
+
+---
+
+# REQUEST METHOD
+
+```java id="w2v7kr"
+con.setRequestMethod("GET");
+```
+
+VERY IMPORTANT HTTP CONCEPT.
+
+---
+
+# WHAT IS GET?
+
+HTTP method for:
+retrieving data.
+
+---
+
+# COMMON HTTP METHODS
+
+| Method | Purpose    |
+| ------ | ---------- |
+| GET    | Fetch data |
+| POST   | Send data  |
+| PUT    | Update     |
+| DELETE | Remove     |
+
+---
+
+# GET INPUT STREAM
+
+```java id="f5m9qx"
+con.getInputStream()
+```
+
+Receives server response.
+
+---
+
+# BUFFERED READER
+
+```java id="u8v3mw"
+BufferedReader in
+```
+
+Reads response efficiently line by line.
+
+---
+
+# READ RESPONSE
+
+```java id="n1q6kr"
+while ((inputLine = in.readLine()) != null)
+```
+
+Reads complete server response.
+
+---
+
+# PRINT RESPONSE
+
+```java id="y4m8qx"
+System.out.println(...)
+```
+
+Displays:
+
+```text id="z7v2mw"
+Sum = 15
+```
+
+---
+
+# CLOSE STREAM
+
+```java id="t0q5kr"
+in.close();
+```
+
+Releases resources.
+
+---
+
+# COMPLETE INTERNAL FLOW
+
+---
+
+# STEP 1
+
+Server starts on port 8000.
+
+---
+
+# STEP 2
+
+Client creates URL.
+
+---
+
+# STEP 3
+
+HTTP connection established.
+
+---
+
+# STEP 4
+
+Client sends GET request.
+
+---
+
+# STEP 5
+
+Server receives request.
+
+---
+
+# STEP 6
+
+Server extracts query parameters.
+
+---
+
+# STEP 7
+
+Server performs addition.
+
+---
+
+# STEP 8
+
+Server sends HTTP response.
+
+---
+
+# STEP 9
+
+Client receives and displays result.
+
+---
+
+# EXECUTION STEPS
+
+
+
+---
+
+# COMPILE
+
+```bash id="k9v1mx"
+javac Server.java
+javac Client.java
+```
+
+---
+
+# RUN SERVER
+
+```bash id="p3m7qw"
+java Server
+```
+
+Starts HTTP server.
+
+---
+
+# RUN CLIENT
+
+```bash id="x6v2kr"
+java Client
+```
+
+Sends HTTP request.
+
+---
+
+# BROWSER TEST
+
+```text id="m0q5vx"
+http://localhost:8000/add?a=20&b=30
+```
+
+VERY IMPORTANT.
+
+---
+
+# WHY BROWSER WORKS?
+
+Because browser itself is HTTP client.
+
+---
+
+# SERVER OUTPUT
+
+```text id="u7m4qx"
+Server started at http://localhost:8000
+```
+
+---
+
+# CLIENT OUTPUT
+
+```text id="t2v8kr"
+Response from server: Sum = 15
+```
+
+---
+
+# MOST IMPORTANT WEB CONCEPTS
+
+| Concept         | Meaning                    |
+| --------------- | -------------------------- |
+| HTTP            | Web communication protocol |
+| Client          | Requests service           |
+| Server          | Provides service           |
+| URL             | Web address                |
+| Port            | Application identifier     |
+| Endpoint        | Specific server route      |
+| Query Parameter | Data in URL                |
+| GET Request     | Retrieve data              |
+| Response        | Server reply               |
+
+---
+
+# VERY IMPORTANT ADVANCED CONCEPT
+
+# REST API
+
+Your project behaves like:
+basic REST API.
+
+---
+
+# WHAT IS REST API?
+
+Server exposing endpoints for communication.
+
+Example:
+
+```text id="r5v1mx"
+/users
+/products
+/add
+```
+
+Modern apps use this heavily.
+
+---
+
+# REAL-WORLD APPLICATIONS
+
+This exact architecture powers:
+
+* Instagram backend
+* Banking APIs
+* AI APIs
+* E-commerce systems
+* Cloud applications
+* Mobile apps
+
+---
+
+# IMPORTANT DIFFERENCE
+
+| Socket Programming      | HTTP                    |
+| ----------------------- | ----------------------- |
+| Low-level communication | High-level web protocol |
+| Manual protocol design  | Standardized            |
+| Flexible                | Structured              |
+| Raw networking          | Web communication       |
+
+---
+
+# PRACTICAL/VIVA QUESTIONS AND ANSWERS
+
+---
+
+# Q1. What is HTTP?
+
+Protocol used for communication between client and server on web.
+
+---
+
+# Q2. What is client-server architecture?
+
+Model where client requests services and server provides responses.
+
+---
+
+# Q3. What is URL?
+
+Address used to locate resource on network.
+
+---
+
+# Q4. What is endpoint?
+
+Specific server route handling requests.
+
+---
+
+# Q5. What is GET request?
+
+HTTP method used to retrieve data.
+
+---
+
+# Q6. What are query parameters?
+
+Values passed in URL.
+
+Example:
+
+```text id="n8m3vx"
+?a=10&b=5
+```
+
+---
+
+# Q7. What is port number?
+
+Logical communication endpoint identifying application.
+
+---
+
+# Q8. What is localhost?
+
+Current machine itself.
+Equivalent:
+127.0.0.1
+
+---
+
+# Q9. What does HttpServer do?
+
+Creates and manages HTTP server.
+
+---
+
+# Q10. What is HttpHandler?
+
+Handles incoming HTTP requests.
+
+---
+
+# Q11. What is HttpExchange?
+
+Represents complete HTTP transaction.
+
+---
+
+# Q12. Why response headers sent?
+
+To inform client about status and response size.
+
+---
+
+# Q13. What is HTTP status code 200?
+
+Successful request.
+
+---
+
+# Q14. Why streams used?
+
+Network communication transfers byte streams.
+
+---
+
+# Q15. Real-world uses of HTTP servers?
+
+* Websites
+* APIs
+* Cloud services
+* AI systems
+* Mobile apps
+* Microservices
+
+---
+
+# BIGGEST TAKEAWAY
+
+This small project demonstrates:
+
+* Web Server Architecture
+* HTTP Communication
+* Client-Server Model
+* URL Processing
+* REST-like APIs
+* Query Handling
+* Network Programming
+* Request-Response Cycle
+
+These are foundational concepts behind:
+
+* Modern Websites
+* Cloud Computing
+* AI APIs
+* Web Applications
+* Backend Systems
+* Distributed Web Services
