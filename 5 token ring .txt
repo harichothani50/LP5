@@ -1,0 +1,1035 @@
+This project is based on one of the MOST IMPORTANT concepts in Distributed Systems and Operating Systems:
+
+# TOKEN RING ALGORITHM
+
+used for:
+
+# DISTRIBUTED MUTUAL EXCLUSION
+
+This is a very deep and important topic because it solves one of the biggest problems in distributed computing:
+
+# How multiple processes safely share one resource without conflict.
+
+This project demonstrates:
+
+* Distributed Mutual Exclusion
+* Token Passing
+* Socket Programming
+* Process Coordination
+* Critical Section Management
+* Ring Topology
+* Distributed Communication
+* Synchronization
+* Deadlock Prevention Concepts
+
+I’ll explain EVERYTHING in deep beginner-to-advanced detail:
+
+* What distributed mutual exclusion is
+* What critical section means
+* Why token ring algorithm exists
+* What race conditions are
+* What sockets are doing internally
+* Why ring topology is used
+* What token means
+* How synchronization works
+* How processes communicate
+* What happens internally in memory/network
+* Every line of code
+* Complete execution flow
+* All concepts examiner may ask
+* Viva questions with proper conceptual answers
+* Internal networking behavior
+* Process coordination logic
+* Deadlock/starvation concepts
+* Real-world applications
+
+---
+
+# 1. FIRST UNDERSTAND THE MAIN PROBLEM
+
+Suppose multiple processes want to access:
+
+* printer
+* database
+* bank account
+* shared file
+* CPU resource
+
+at SAME TIME.
+
+This creates problems.
+
+---
+
+# REAL LIFE EXAMPLE
+
+Imagine:
+
+3 people trying to use:
+
+* one bathroom
+* one ATM
+* one printer
+
+If all enter simultaneously:
+CHAOS.
+
+Need controlled access.
+
+---
+
+# THIS IS CALLED:
+
+# MUTUAL EXCLUSION
+
+Meaning:
+
+ONLY ONE process allowed inside critical resource at a time.
+
+---
+
+# 2. WHAT IS CRITICAL SECTION?
+
+MOST IMPORTANT CONCEPT.
+
+---
+
+# CRITICAL SECTION
+
+Part of program where:
+shared resource is accessed.
+
+Example:
+
+* updating database
+* writing file
+* using printer
+* modifying shared memory
+
+---
+
+# WHY IS CRITICAL SECTION DANGEROUS?
+
+If two processes access simultaneously:
+
+Data corruption occurs.
+
+---
+
+# EXAMPLE
+
+Suppose:
+Bank balance = 1000
+
+Process A withdraws 500.
+Process B withdraws 300.
+
+Without synchronization:
+wrong final balance may occur.
+
+---
+
+# THIS IS CALLED:
+
+# RACE CONDITION
+
+---
+
+# WHAT IS RACE CONDITION?
+
+When multiple processes:
+
+* access shared resource simultaneously
+* causing unpredictable behavior
+
+---
+
+# SOLUTION → DISTRIBUTED MUTUAL EXCLUSION
+
+Need mechanism ensuring:
+ONLY ONE process enters critical section.
+
+---
+
+# 3. WHAT IS TOKEN RING ALGORITHM?
+
+One special object called:
+
+# TOKEN
+
+circulates among processes.
+
+ONLY process holding token:
+can enter critical section.
+
+---
+
+# SIMPLE RULE
+
+| Has Token? | Can Enter CS? |
+| ---------- | ------------- |
+| Yes        | Allowed       |
+| No         | Not Allowed   |
+
+---
+
+# REAL LIFE EXAMPLE
+
+Imagine classroom talking stick.
+
+Only student holding stick:
+can speak.
+
+Token = permission.
+
+---
+
+# 4. WHAT IS RING TOPOLOGY?
+
+Processes connected in circular form.
+
+Example:
+
+```text id="e0p3gs"
+P1 → P2 → P3 → P1
+```
+
+Token moves continuously in ring.
+
+---
+
+# WHY RING USED?
+
+Simple token passing mechanism.
+
+Each process knows:
+
+* previous process
+* next process
+
+Easy coordination.
+
+---
+
+# YOUR PROJECT ARCHITECTURE
+
+```text id="ux3sja"
+Process1 ---> Process2 ---> Process3
+    ^                         |
+    |_________________________|
+```
+
+---
+
+# FILES IN PROJECT
+
+| File                 | Purpose                        |
+| -------------------- | ------------------------------ |
+| `Process.java`       | Distributed token ring process |
+| `How to execute.txt` | Execution steps                |
+
+---
+
+# FILE 1 — `Process.java`
+
+
+
+```java id="u6x5hf"
+import java.io.*;
+import java.net.*;
+```
+
+---
+
+# IMPORTS EXPLAINED
+
+---
+
+# `java.io.*`
+
+Provides:
+
+* input/output streams
+
+Needed for:
+
+```java id="wyq7e8"
+DataInputStream
+DataOutputStream
+```
+
+Used for data communication.
+
+---
+
+# `java.net.*`
+
+Networking package.
+
+Provides:
+
+* Socket
+* ServerSocket
+
+Needed for process communication.
+
+---
+
+# MAIN CLASS
+
+```java id="i2r6n0"
+public class Process
+```
+
+Represents distributed process.
+
+IMPORTANT:
+Each terminal runs separate process instance.
+
+---
+
+# MAIN METHOD
+
+```java id="n5m0av"
+public static void main(String[] args)
+```
+
+Program starts here.
+
+---
+
+# COMMAND-LINE ARGUMENTS
+
+```java id="ek0g5m"
+int id = Integer.parseInt(args[0]);
+int myPort = Integer.parseInt(args[1]);
+int nextPort = Integer.parseInt(args[2]);
+```
+
+VERY IMPORTANT.
+
+---
+
+# WHAT ARE COMMAND-LINE ARGUMENTS?
+
+Values passed while running program.
+
+Example:
+
+```bash id="b0p3hv"
+java Process 1 5001 5002
+```
+
+Means:
+
+| Argument | Meaning           |
+| -------- | ----------------- |
+| 1        | Process ID        |
+| 5001     | My listening port |
+| 5002     | Next process port |
+
+---
+
+# WHY PROCESS ID NEEDED?
+
+To identify process uniquely.
+
+---
+
+# SERVER SOCKET
+
+```java id="j9m2xp"
+ServerSocket serverSocket = new ServerSocket(myPort);
+```
+
+MOST IMPORTANT LINE.
+
+---
+
+# WHAT IS ServerSocket?
+
+ServerSocket:
+
+* listens for incoming connections
+* waits for communication
+
+Every process acts as BOTH:
+
+* client
+* server
+
+VERY IMPORTANT DISTRIBUTED SYSTEM CONCEPT.
+
+---
+
+# WHY?
+
+Because:
+
+* process receives token
+* process sends token
+
+So each process:
+must accept and send connections.
+
+---
+
+# LISTENING MESSAGE
+
+```java id="s0k6lt"
+System.out.println("Process " + id + " listening on port " + myPort);
+```
+
+Shows process active.
+
+---
+
+# CONNECT TO NEXT PROCESS
+
+```java id="x2d5uz"
+Socket next = null;
+```
+
+Creates socket reference.
+
+---
+
+# RETRY LOOP
+
+```java id="i8w1qn"
+while (next == null)
+```
+
+VERY IMPORTANT.
+
+---
+
+# WHY LOOP USED?
+
+Processes may start at different times.
+
+Suppose:
+Process 1 starts before Process 2.
+
+Connection initially fails.
+
+Loop retries until successful.
+
+---
+
+# CONNECTION ATTEMPT
+
+```java id="r6v0ch"
+next = new Socket("localhost", nextPort);
+```
+
+Connects to next process.
+
+---
+
+# localhost
+
+Means:
+same computer.
+
+Equivalent IP:
+
+```text id="v7z4pe"
+127.0.0.1
+```
+
+---
+
+# WHAT IS SOCKET HERE?
+
+Communication channel between processes.
+
+---
+
+# CATCH BLOCK
+
+```java id="o3m7qa"
+Thread.sleep(1000);
+```
+
+Waits 1 second before retrying.
+
+Avoids excessive CPU usage.
+
+---
+
+# OUTPUT STREAM
+
+```java id="t1c4yf"
+DataOutputStream out = new DataOutputStream(next.getOutputStream());
+```
+
+Used to SEND token.
+
+---
+
+# ACCEPT PREVIOUS PROCESS
+
+```java id="w9b2km"
+Socket prev = serverSocket.accept();
+```
+
+VERY IMPORTANT.
+
+---
+
+# WHAT DOES accept() DO?
+
+Waits until previous process connects.
+
+This is:
+blocking operation.
+
+---
+
+# BLOCKING MEANS
+
+Program pauses until connection arrives.
+
+---
+
+# INPUT STREAM
+
+```java id="p5n8xr"
+DataInputStream in = new DataInputStream(prev.getInputStream());
+```
+
+Used to RECEIVE token.
+
+---
+
+# TOKEN INITIALIZATION
+
+```java id="c0k7jm"
+if (id == 1)
+```
+
+ONLY Process 1 creates initial token.
+
+---
+
+# WHY ONLY ONE TOKEN?
+
+MOST IMPORTANT TOKEN RING RULE.
+
+If multiple tokens exist:
+multiple processes may enter CS simultaneously.
+
+Mutual exclusion breaks.
+
+---
+
+# INITIAL DELAY
+
+```java id="d6z1qw"
+Thread.sleep(2000);
+```
+
+Waits for all processes to connect.
+
+---
+
+# SEND TOKEN
+
+```java id="g4v9xe"
+out.writeUTF("TOKEN");
+```
+
+VERY IMPORTANT.
+
+---
+
+# WHAT IS TOKEN HERE?
+
+Special permission message.
+
+Whoever receives:
+can enter critical section.
+
+---
+
+# WHAT IS UTF?
+
+UTF =
+Unicode text format.
+
+Used for sending strings.
+
+---
+
+# INFINITE LOOP
+
+```java id="l2x8cn"
+while (true)
+```
+
+Program continuously circulates token forever.
+
+---
+
+# RECEIVE TOKEN
+
+```java id="f9r5jw"
+String msg = in.readUTF();
+```
+
+Blocks until token arrives.
+
+---
+
+# TOKEN CHECK
+
+```java id="n1q7vk"
+if (msg.equals("TOKEN"))
+```
+
+Confirms valid token received.
+
+---
+
+# PROCESS RECEIVED TOKEN
+
+```java id="y4m2ht"
+System.out.println("Process " + id + " RECEIVED TOKEN");
+```
+
+Shows token ownership.
+
+---
+
+# ENTERING CRITICAL SECTION
+
+```java id="o7x5kp"
+System.out.println("ENTERING CRITICAL SECTION");
+```
+
+MOST IMPORTANT CONCEPT.
+
+---
+
+# WHAT HAPPENS IN REAL SYSTEM?
+
+Could be:
+
+* database update
+* shared file access
+* resource usage
+
+---
+
+# WORK SIMULATION
+
+```java id="t5z0wr"
+Thread.sleep(2000);
+```
+
+Simulates process doing work.
+
+---
+
+# EXITING CRITICAL SECTION
+
+```java id="v3n8lm"
+System.out.println("EXITING CRITICAL SECTION");
+```
+
+Process releases resource.
+
+---
+
+# PASS TOKEN
+
+```java id="k8r4yf"
+out.writeUTF("TOKEN");
+```
+
+Sends permission to next process.
+
+---
+
+# WHY TOKEN PASSED?
+
+Ensures fairness.
+
+Every process eventually gets chance.
+
+---
+
+# COMPLETE TOKEN FLOW
+
+```text id="e9p2wd"
+P1 → P2 → P3 → P1 → P2 ...
+```
+
+---
+
+# INTERNAL EXECUTION FLOW
+
+---
+
+# STEP 1
+
+Each process starts.
+
+---
+
+# STEP 2
+
+Each creates ServerSocket.
+
+---
+
+# STEP 3
+
+Each connects to next process.
+
+---
+
+# STEP 4
+
+Ring topology formed.
+
+---
+
+# STEP 5
+
+Process 1 generates token.
+
+---
+
+# STEP 6
+
+Token circulates.
+
+---
+
+# STEP 7
+
+Process receiving token enters CS.
+
+---
+
+# STEP 8
+
+After completion token forwarded.
+
+---
+
+# STEP 9
+
+Cycle repeats forever.
+
+---
+
+# EXECUTION COMMANDS
+
+
+
+---
+
+# COMPILE
+
+```bash id="s2n9xv"
+javac Process.java
+```
+
+Compiles Java source code.
+
+---
+
+# RUN PROCESS 1
+
+```bash id="a7w5rc"
+java Process 1 5001 5002
+```
+
+---
+
+# RUN PROCESS 2
+
+```bash id="m0v3qe"
+java Process 2 5002 5003
+```
+
+---
+
+# RUN PROCESS 3
+
+```bash id="f1k8zy"
+java Process 3 5003 5001
+```
+
+---
+
+# IMPORTANT
+
+Each process:
+
+* listens on own port
+* connects to next process
+
+---
+
+# HOW RING IS FORMED
+
+| Process | Listening Port | Connects To |
+| ------- | -------------- | ----------- |
+| P1      | 5001           | 5002        |
+| P2      | 5002           | 5003        |
+| P3      | 5003           | 5001        |
+
+Creates circular communication.
+
+---
+
+# OUTPUT EXAMPLE
+
+```text id="t6m1xk"
+Process 1 RECEIVED TOKEN
+ENTERING CRITICAL SECTION
+EXITING CRITICAL SECTION
+PASSING TOKEN
+
+Process 2 RECEIVED TOKEN
+...
+```
+
+---
+
+# MOST IMPORTANT DISTRIBUTED SYSTEM CONCEPTS
+
+| Concept            | Meaning                      |
+| ------------------ | ---------------------------- |
+| Mutual Exclusion   | One process at a time        |
+| Critical Section   | Shared resource access       |
+| Token              | Permission object            |
+| Ring Topology      | Circular process structure   |
+| Socket             | Communication endpoint       |
+| Synchronization    | Coordinating processes       |
+| Distributed System | Multiple connected processes |
+| Race Condition     | Unsafe simultaneous access   |
+
+---
+
+# WHY TOKEN RING IS IMPORTANT?
+
+Guarantees:
+
+* no starvation
+* fairness
+* mutual exclusion
+
+---
+
+# WHAT IS STARVATION?
+
+When process waits forever.
+
+Token ring avoids this because token eventually arrives.
+
+---
+
+# ADVANTAGES OF TOKEN RING
+
+| Advantage     | Reason                        |
+| ------------- | ----------------------------- |
+| Fairness      | Token circulates sequentially |
+| No starvation | Every process gets token      |
+| Simple logic  | Easy implementation           |
+| Deterministic | Predictable behavior          |
+
+---
+
+# DISADVANTAGES
+
+| Disadvantage            | Reason                     |
+| ----------------------- | -------------------------- |
+| Token loss problem      | If token lost system stops |
+| Slow for many processes | Token must travel          |
+| Single token dependency | Failure affects system     |
+
+---
+
+# IMPORTANT ADVANCED CONCEPT
+
+# TOKEN LOSS
+
+Suppose token disappears due to crash.
+
+Then:
+NO process can enter critical section.
+
+Real systems use:
+
+* token regeneration
+* failure detection
+
+---
+
+# ANOTHER ADVANCED CONCEPT
+
+# DEADLOCK
+
+---
+
+# WHAT IS DEADLOCK?
+
+Processes waiting forever.
+
+Token ring avoids traditional deadlock because:
+only one token exists.
+
+---
+
+# PRACTICAL/VIVA QUESTIONS AND ANSWERS
+
+---
+
+# Q1. What is mutual exclusion?
+
+Mechanism ensuring only one process accesses shared resource at a time.
+
+---
+
+# Q2. What is critical section?
+
+Code segment accessing shared resource.
+
+---
+
+# Q3. What is token ring algorithm?
+
+Distributed mutual exclusion algorithm where token circulates among processes.
+
+---
+
+# Q4. Why only one token used?
+
+To guarantee only one process enters critical section.
+
+---
+
+# Q5. What happens if two tokens exist?
+
+Mutual exclusion breaks.
+Two processes may enter CS simultaneously.
+
+---
+
+# Q6. What is starvation?
+
+A process never getting chance to execute.
+
+---
+
+# Q7. Does token ring avoid starvation?
+
+Yes.
+Because token circulates fairly.
+
+---
+
+# Q8. Why ring topology used?
+
+Simple token passing structure.
+
+---
+
+# Q9. What is socket?
+
+Communication endpoint between processes.
+
+---
+
+# Q10. Difference between Socket and ServerSocket?
+
+Socket:
+communication channel.
+
+ServerSocket:
+listens for connections.
+
+---
+
+# Q11. Why `accept()` blocking?
+
+Waits until process connects.
+
+---
+
+# Q12. Why infinite loop used?
+
+To continuously circulate token.
+
+---
+
+# Q13. What if token lost?
+
+System stops granting CS access.
+
+---
+
+# Q14. Real-world applications of mutual exclusion?
+
+* databases
+* distributed file systems
+* banking
+* cloud servers
+* operating systems
+
+---
+
+# Q15. Why Thread.sleep() used?
+
+To simulate:
+
+* processing delay
+* work execution
+* visible synchronization behavior
+
+---
+
+# VERY IMPORTANT EXAM QUESTION
+
+# Difference Between Centralized and Distributed Mutual Exclusion
+
+| Centralized          | Distributed           |
+| -------------------- | --------------------- |
+| One coordinator      | No central controller |
+| Simple               | More scalable         |
+| Single failure point | Fault tolerant        |
+| Less communication   | More coordination     |
+
+Your project:
+
+# Distributed Mutual Exclusion
+
+---
+
+# BIGGEST TAKEAWAY
+
+This small project demonstrates:
+
+* Distributed Systems
+* Mutual Exclusion
+* Synchronization
+* Token Passing
+* Socket Programming
+* Ring Topology
+* Critical Section Control
+* Process Coordination
+* Network Communication
+
+These concepts are foundational in:
+
+* Operating Systems
+* Distributed Databases
+* Cloud Computing
+* AI Distributed Clusters
+* Parallel Systems
+* Enterprise Infrastructure
