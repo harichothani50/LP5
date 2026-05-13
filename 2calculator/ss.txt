@@ -1,0 +1,1150 @@
+Now this project is completely different from your previous RMI project.
+
+Your previous project used:
+
+* Java RMI
+
+This new project uses:
+
+* CORBA
+
+CORBA is much deeper and more complex than RMI because:
+
+* it is language independent
+* platform independent
+* uses IDL
+* uses ORB
+* supports distributed computing across different languages
+
+This is enterprise-level distributed architecture concept.
+
+I’ll explain EVERYTHING from absolute zero beginner level:
+
+* What CORBA is
+* Why CORBA was created
+* Difference between RMI and CORBA
+* What IDL means
+* What ORB means
+* What servant means
+* What POA means
+* What NameService means
+* What narrow() means
+* What stubs and skeletons are
+* How client/server communicate internally
+* Why generated files are created
+* Complete execution flow
+* Every import
+* Every line
+* Every keyword
+* Every concept
+* What happens internally in memory and network
+
+---
+
+# 1. FIRST UNDERSTAND THE MAIN PROBLEM
+
+Before CORBA existed:
+
+Different programming languages could NOT communicate easily.
+
+Example:
+
+| Language | Problem                   |
+| -------- | ------------------------- |
+| Java     | Different runtime         |
+| C++      | Different memory handling |
+| Python   | Different architecture    |
+
+Suppose:
+
+* Client written in Java
+* Server written in C++
+
+How will they communicate?
+
+That was the problem.
+
+---
+
+# 2. WHAT IS CORBA?
+
+CORBA =
+Common Object Request Broker Architecture
+
+Created by:
+OMG organization
+(Object Management Group)
+
+---
+
+# MAIN GOAL OF CORBA
+
+Allow programs written in:
+
+* Java
+* C++
+* Python
+* Ada
+* COBOL
+
+to communicate remotely.
+
+---
+
+# REAL LIFE EXAMPLE
+
+Imagine:
+
+Different countries:
+
+* English speakers
+* Japanese speakers
+* Hindi speakers
+
+Need communication.
+
+Solution:
+translator/interpreter.
+
+CORBA acts as universal translator.
+
+---
+
+# 3. MOST IMPORTANT CONCEPT — ORB
+
+ORB =
+Object Request Broker
+
+ORB is the HEART of CORBA.
+
+---
+
+# WHAT DOES ORB DO?
+
+ORB handles:
+
+* communication
+* object locating
+* request forwarding
+* data conversion
+* network transmission
+
+Client never directly talks to server.
+
+Everything passes through ORB.
+
+---
+
+# REAL LIFE EXAMPLE
+
+Customer → Receptionist → Manager
+
+Customer doesn't directly access manager.
+
+Receptionist handles communication.
+
+ORB = Receptionist.
+
+---
+
+# 4. CORBA ARCHITECTURE
+
+Your project architecture:
+
+```text
+CLIENT
+   |
+   v
+ORB
+   |
+Name Service
+   |
+SERVER OBJECT
+```
+
+---
+
+# 5. WHAT IS IDL?
+
+IDL =
+Interface Definition Language
+
+MOST IMPORTANT CONCEPT.
+
+---
+
+# WHY IDL EXISTS?
+
+Different languages have different syntax.
+
+Example:
+
+Java:
+
+```java id="7c8u5q"
+int add(int a, int b)
+```
+
+C++:
+
+```cpp id="gkpqdu"
+int add(int a, int b);
+```
+
+Need common format.
+
+IDL provides universal interface description.
+
+---
+
+# 6. YOUR FILES
+
+| File                  | Purpose                                 |
+| --------------------- | --------------------------------------- |
+| `Calculator.idl`      | Defines interface in universal language |
+| `CalculatorImpl.java` | Actual implementation                   |
+| `Server.java`         | Starts CORBA server                     |
+| `Client.java`         | Client program                          |
+| `How to execute.txt`  | Execution steps                         |
+
+---
+
+# FILE 1 — `Calculator.idl`
+
+
+
+```idl id="9z6tt1"
+module CalculatorApp {
+    interface Calculator {
+        float add(in float a, in float b);
+        float sub(in float a, in float b);
+        float mul(in float a, in float b);
+        float div(in float a, in float b);
+    };
+};
+```
+
+---
+
+# FIRST UNDERSTAND IDL
+
+IDL is NOT Java.
+
+IDL is universal definition language.
+
+It ONLY defines:
+
+* methods
+* parameters
+* return types
+
+NOT implementation.
+
+---
+
+# LINE 1
+
+```idl id="8j7lwp"
+module CalculatorApp
+```
+
+---
+
+# WHAT IS MODULE?
+
+Module is like:
+
+* package
+* namespace
+* container
+
+Used to organize interfaces.
+
+---
+
+# WHY MODULE IS IMPORTANT?
+
+Suppose:
+two applications both have:
+
+```idl id="f50qzt"
+Calculator
+```
+
+Without modules:
+name conflict happens.
+
+Module prevents conflicts.
+
+---
+
+# LINE 2
+
+```idl id="5y4d1v"
+interface Calculator
+```
+
+---
+
+# SAME AS JAVA INTERFACE
+
+Defines methods only.
+
+NO logic.
+
+---
+
+# LINE 3
+
+```idl id="4xz6f5"
+float add(in float a, in float b);
+```
+
+---
+
+# BREAKING THIS COMPLETELY
+
+---
+
+# `float`
+
+Return type.
+
+Returns decimal value.
+
+---
+
+# `add`
+
+Method name.
+
+---
+
+# `in`
+
+VERY IMPORTANT.
+
+CORBA supports:
+
+* in
+* out
+* inout
+
+---
+
+# WHAT IS `in`?
+
+Means:
+value travels:
+CLIENT → SERVER
+
+ONLY input.
+
+---
+
+# EXAMPLE
+
+```idl id="39kvj8"
+add(10,5)
+```
+
+10 and 5 go from client to server.
+
+---
+
+# WHY CORBA HAS `in/out/inout`?
+
+Because CORBA supports many languages.
+
+Some languages handle parameters differently.
+
+---
+
+# GENERATED FILES CONCEPT
+
+VERY IMPORTANT.
+
+---
+
+# THIS COMMAND
+
+```bash id="s1n1l2"
+idlj -fall Calculator.idl
+```
+
+Generates many Java files automatically.
+
+---
+
+# WHY?
+
+CORBA needs:
+
+* stubs
+* skeletons
+* helper classes
+* holders
+
+to enable remote communication.
+
+---
+
+# GENERATED FILES INCLUDE
+
+| File                  | Purpose               |
+| --------------------- | --------------------- |
+| Calculator.java       | Interface             |
+| CalculatorHelper.java | Helper methods        |
+| CalculatorHolder.java | Holder class          |
+| CalculatorPOA.java    | Skeleton/base servant |
+| _CalculatorStub.java  | Client stub           |
+
+---
+
+# MOST IMPORTANT CONCEPT — STUB
+
+Stub acts like fake local object.
+
+Client thinks:
+
+> "I am calling local object"
+
+Actually:
+stub sends request over network.
+
+---
+
+# SKELETON
+
+Skeleton receives requests on server side.
+
+Then calls actual implementation.
+
+---
+
+# COMPLETE FLOW
+
+```text
+Client
+  ↓
+Stub
+  ↓
+ORB
+  ↓
+Skeleton
+  ↓
+Implementation
+```
+
+---
+
+# FILE 2 — `CalculatorImpl.java`
+
+
+
+```java id="z4l1fh"
+import CalculatorApp.*;
+
+public class CalculatorImpl extends CalculatorPOA {
+
+    public float add(float a, float b) {
+        return a + b;
+    }
+
+    public float sub(float a, float b) {
+        return a - b;
+    }
+
+    public float mul(float a, float b) {
+        return a * b;
+    }
+
+    public float div(float a, float b) {
+        return a / b;
+    }
+}
+```
+
+---
+
+# IMPORT
+
+```java id="syccx2"
+import CalculatorApp.*;
+```
+
+Imports all generated CORBA classes.
+
+Generated from IDL.
+
+---
+
+# VERY IMPORTANT
+
+```java id="v4p08s"
+extends CalculatorPOA
+```
+
+---
+
+# WHAT IS CalculatorPOA?
+
+Generated automatically from IDL.
+
+POA =
+Portable Object Adapter.
+
+---
+
+# WHAT IS POA?
+
+POA manages:
+
+* servants
+* object activation
+* request routing
+* lifecycle
+
+---
+
+# WHAT IS SERVANT?
+
+Servant =
+actual implementation object.
+
+Here:
+
+```java id="g2z1u3"
+CalculatorImpl
+```
+
+is servant.
+
+---
+
+# WHY EXTEND CalculatorPOA?
+
+Because:
+
+* CalculatorPOA already contains CORBA infrastructure
+* your class only provides logic
+
+---
+
+# METHOD IMPLEMENTATIONS
+
+Example:
+
+```java id="q6l0t6"
+return a + b;
+```
+
+Very simple logic.
+
+But CORBA internally handles:
+
+* networking
+* marshalling
+* object lookup
+* transport
+* serialization
+
+---
+
+# FILE 3 — `Server.java`
+
+
+
+```java id="nqjlwm"
+import CalculatorApp.*;
+import org.omg.CosNaming.*;
+import org.omg.CORBA.*;
+import org.omg.PortableServer.*;
+import org.omg.PortableServer.POA;
+```
+
+---
+
+# WHAT ARE THESE IMPORTS?
+
+---
+
+# `org.omg.CORBA.*`
+
+Core CORBA classes.
+
+Includes:
+
+* ORB
+* CORBA objects
+* communication infrastructure
+
+---
+
+# `org.omg.CosNaming.*`
+
+Naming service classes.
+
+Like:
+directory/phonebook.
+
+---
+
+# `PortableServer`
+
+Contains POA classes.
+
+---
+
+# MAIN METHOD
+
+```java id="y4y1yc"
+public static void main(String args[])
+```
+
+Program starts here.
+
+---
+
+# INITIALIZE ORB
+
+```java id="k53lr9"
+ORB orb = ORB.init(args, null);
+```
+
+MOST IMPORTANT LINE.
+
+---
+
+# WHAT HAPPENS HERE?
+
+ORB starts:
+
+* communication system
+* distributed environment
+* request broker
+
+Without ORB:
+CORBA cannot work.
+
+---
+
+# WHAT IS `args`?
+
+Command-line arguments.
+
+Used for:
+
+* host
+* port
+* ORB settings
+
+---
+
+# ROOTPOA
+
+```java id="nd6s6f"
+POA rootpoa = POAHelper.narrow(orb.resolve_initial_references("RootPOA"));
+```
+
+VERY ADVANCED CONCEPT.
+
+---
+
+# WHAT IS RootPOA?
+
+Main POA manager.
+
+Controls:
+
+* servant activation
+* object references
+* request processing
+
+---
+
+# WHAT IS `resolve_initial_references()`?
+
+ORB provides initial services.
+
+Like:
+
+* RootPOA
+* NameService
+
+This function retrieves them.
+
+---
+
+# WHAT IS `narrow()`?
+
+MOST IMPORTANT CORBA CONCEPT.
+
+---
+
+# WHY NARROW EXISTS?
+
+CORBA initially returns:
+generic object.
+
+Need conversion into proper type.
+
+`narrow()` safely converts it.
+
+---
+
+# SIMILAR TO CASTING
+
+Java casting:
+
+```java id="xldv3t"
+(MyClass)obj
+```
+
+CORBA uses:
+
+```java id="yuwjlwm"
+Helper.narrow(obj)
+```
+
+because remote objects are special.
+
+---
+
+# ACTIVATE POA MANAGER
+
+```java id="u5kb6m"
+rootpoa.the_POAManager().activate();
+```
+
+---
+
+# WHY ACTIVATION NEEDED?
+
+Without activation:
+POA will NOT process requests.
+
+It is like:
+turning ON the server.
+
+---
+
+# CREATE SERVANT
+
+```java id="0r8j5u"
+CalculatorImpl calcImpl = new CalculatorImpl();
+```
+
+Creates actual implementation object.
+
+---
+
+# CONVERT SERVANT TO CORBA OBJECT
+
+```java id="rwjlwm"
+org.omg.CORBA.Object ref = rootpoa.servant_to_reference(calcImpl);
+```
+
+---
+
+# WHY THIS IS NEEDED?
+
+Servant itself cannot directly travel over network.
+
+Need CORBA object reference.
+
+This creates network-accessible reference.
+
+---
+
+# NARROW AGAIN
+
+```java id="6v87x2"
+Calculator href = CalculatorHelper.narrow(ref);
+```
+
+Converts generic CORBA reference into Calculator type.
+
+---
+
+# NAME SERVICE
+
+```java id="qej1u7"
+orb.resolve_initial_references("NameService");
+```
+
+Gets naming service.
+
+---
+
+# WHAT IS NAMING SERVICE?
+
+Like registry in RMI.
+
+Stores:
+name → object mapping
+
+---
+
+# BIND OBJECT
+
+```java id="x1nvly"
+NameComponent path[] = ncRef.to_name("Calculator");
+ncRef.rebind(path, href);
+```
+
+Registers object using name:
+
+```text
+Calculator
+```
+
+---
+
+# orb.run()
+
+```java id="2ekgx1"
+orb.run();
+```
+
+VERY IMPORTANT.
+
+Keeps server alive.
+
+Starts listening for client requests continuously.
+
+Without this:
+server exits immediately.
+
+---
+
+# FILE 4 — `Client.java`
+
+
+
+```java id="ym2yiu"
+import CalculatorApp.*;
+import org.omg.CosNaming.*;
+import org.omg.CORBA.*;
+```
+
+Imports CORBA classes.
+
+---
+
+# INITIALIZE ORB
+
+```java id="38hm13"
+ORB orb = ORB.init(args, null);
+```
+
+Client also needs ORB.
+
+Because ORB handles communication.
+
+---
+
+# GET NAME SERVICE
+
+```java id="hvsrcl"
+orb.resolve_initial_references("NameService");
+```
+
+Client contacts naming service.
+
+---
+
+# NARROWING
+
+```java id="9cw1bm"
+NamingContextExt ncRef = NamingContextExtHelper.narrow(objRef);
+```
+
+Converts generic object into naming context.
+
+---
+
+# LOOKUP OBJECT
+
+```java id="6c3q7z"
+Calculator calc = CalculatorHelper.narrow(ncRef.resolve_str("Calculator"));
+```
+
+---
+
+# WHAT HAPPENS HERE?
+
+Client says:
+
+> "Give object named Calculator"
+
+Naming service returns remote reference.
+
+---
+
+# REMOTE METHOD CALLS
+
+```java id="vk9ygn"
+calc.add(10, 5)
+```
+
+Looks local.
+
+Actually:
+
+* request serialized
+* sent to ORB
+* routed to server
+* executed remotely
+* response returned
+
+---
+
+# INTERNAL CORBA FLOW
+
+When client calls:
+
+```java id="jjlwmq"
+calc.add(10,5)
+```
+
+Internally:
+
+---
+
+# STEP 1
+
+Client stub receives call.
+
+---
+
+# STEP 2
+
+Parameters marshalled.
+
+---
+
+# WHAT IS MARSHALLING?
+
+Convert data into transferable format.
+
+---
+
+# STEP 3
+
+ORB sends data.
+
+---
+
+# STEP 4
+
+Server ORB receives request.
+
+---
+
+# STEP 5
+
+Skeleton dispatches method.
+
+---
+
+# STEP 6
+
+Implementation executes.
+
+---
+
+# STEP 7
+
+Return value marshalled.
+
+---
+
+# STEP 8
+
+Response sent back.
+
+---
+
+# FILE 5 — `How to execute.txt`
+
+
+
+```text id="x86tpc"
+idlj -fall Calculator.idl
+```
+
+Generates all CORBA support classes.
+
+---
+
+# COMPILE
+
+```bash id="x1y6vj"
+javac *.java CalculatorApp/*.java
+```
+
+Compiles:
+
+* your files
+* generated files
+
+---
+
+# START NAMING SERVICE
+
+```bash id="95jlwm"
+tnameserv -ORBInitialPort 1050
+```
+
+Starts CORBA naming service.
+
+---
+
+# WHY PORT 1050?
+
+CORBA naming service port.
+
+Can be changed.
+
+---
+
+# RUN SERVER
+
+```bash id="a4m5j0"
+java Server -ORBInitialPort 1050 -ORBInitialHost localhost
+```
+
+Server connects to naming service.
+
+---
+
+# RUN CLIENT
+
+```bash id="w30l83"
+java Client -ORBInitialPort 1050 -ORBInitialHost localhost
+```
+
+Client also connects to same naming service.
+
+---
+
+# COMPLETE EXECUTION FLOW
+
+---
+
+# STEP 1
+
+IDL compiled.
+
+---
+
+# STEP 2
+
+Generated files created.
+
+---
+
+# STEP 3
+
+Naming service starts.
+
+---
+
+# STEP 4
+
+Server starts ORB.
+
+---
+
+# STEP 5
+
+Server creates servant.
+
+---
+
+# STEP 6
+
+Server binds object to naming service.
+
+---
+
+# STEP 7
+
+Client starts ORB.
+
+---
+
+# STEP 8
+
+Client contacts naming service.
+
+---
+
+# STEP 9
+
+Client gets remote reference.
+
+---
+
+# STEP 10
+
+Client invokes remote methods.
+
+---
+
+# OUTPUT EXPECTED
+
+```text id="vsfhvg"
+Addition: 15.0
+Subtraction: 5.0
+Multiplication: 50.0
+Division: 2.0
+```
+
+---
+
+# DIFFERENCE BETWEEN RMI AND CORBA
+
+| Feature              | RMI            | CORBA                          |
+| -------------------- | -------------- | ------------------------------ |
+| Language dependent   | Yes            | No                             |
+| Uses Java only       | Yes            | No                             |
+| Uses IDL             | No             | Yes                            |
+| Complexity           | Simple         | Complex                        |
+| Performance          | Faster in Java | Flexible                       |
+| Platform independent | Partial        | Strong                         |
+| Used in              | Java systems   | Enterprise distributed systems |
+
+---
+
+# MOST IMPORTANT CONCEPTS YOU LEARNED
+
+| Concept     | Meaning                      |
+| ----------- | ---------------------------- |
+| ORB         | Communication broker         |
+| IDL         | Universal interface language |
+| Stub        | Client-side proxy            |
+| Skeleton    | Server-side dispatcher       |
+| POA         | Object adapter               |
+| Servant     | Actual implementation        |
+| NameService | Object directory             |
+| Marshalling | Data conversion              |
+| Narrowing   | Safe CORBA object conversion |
+
+---
+
+# BIGGEST TAKEAWAY
+
+Your project demonstrates:
+
+* Distributed Computing
+* Middleware Architecture
+* Language-Independent Communication
+* Remote Object Invocation
+* Enterprise Networking
+* Object Brokering
+* CORBA Infrastructure
+* Client-Server Architecture
+
+This is much more advanced internally than normal Java networking because CORBA was designed for massive enterprise distributed systems long before modern microservices existed.
